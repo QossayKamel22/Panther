@@ -5,6 +5,8 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/panther_mark.dart';
+import '../../../core/widgets/social_sign_in_row.dart';
+import '../../../data/repositories/auth_repository.dart';
 import '../application/auth_controller.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -28,6 +30,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _submit() async {
     final auth = context.read<AuthController>();
     final ok = await auth.register(email: _email.text.trim(), password: _password.text);
+    if (ok && mounted) context.go('/home');
+  }
+
+  Future<void> _social(SocialProvider provider) async {
+    final auth = context.read<AuthController>();
+    final ok = await auth.signInWithSocial(provider);
     if (ok && mounted) context.go('/home');
   }
 
@@ -72,6 +80,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                     const SizedBox(height: AppSpacing.lg),
                     AppButton(label: 'Create account', expand: true, loading: auth.busy, onPressed: _submit),
+                    const SizedBox(height: AppSpacing.xl),
+                    SocialSignInRow(busy: auth.busy, onSelect: _social),
                   ],
                 ),
               ),

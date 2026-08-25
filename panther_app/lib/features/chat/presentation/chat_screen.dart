@@ -59,6 +59,11 @@ class _ChatScreenState extends State<ChatScreen> {
               const PantherWordmark(markSize: 24, fontSize: 14),
               const Spacer(),
               IconButton(
+                onPressed: () => context.push('/search'),
+                icon: const Icon(Icons.search_rounded),
+                tooltip: 'Search memory',
+              ),
+              IconButton(
                 onPressed: () => context.push('/memory'),
                 icon: const Icon(Icons.bookmark_border_rounded),
                 tooltip: 'Memory',

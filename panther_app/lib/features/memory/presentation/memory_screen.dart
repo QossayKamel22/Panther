@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_states.dart';
+import '../../../core/widgets/memory_tile.dart';
 import '../../../data/models/memory_entry.dart';
 import '../application/memory_controller.dart';
 
@@ -56,7 +57,7 @@ class MemoryScreen extends StatelessWidget {
                     separatorBuilder: (context, i) =>
                         const SizedBox(height: AppSpacing.sm),
                     itemBuilder: (context, i) =>
-                        _MemoryTile(entry: controller.entries[i]),
+                        MemoryTile(entry: controller.entries[i]),
                   ),
           ),
         ],
@@ -131,56 +132,6 @@ class MemoryScreen extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _MemoryTile extends StatelessWidget {
-  const _MemoryTile({required this.entry});
-
-  final MemoryEntry entry;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: theme.colorScheme.outline),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  entry.scope.name.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.primary,
-                    letterSpacing: 0.6,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  entry.content,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () => context.read<MemoryController>().remove(entry.id),
-            icon: const Icon(Icons.close_rounded, size: 18),
-            tooltip: 'Forget',
-          ),
-        ],
-      ),
     );
   }
 }

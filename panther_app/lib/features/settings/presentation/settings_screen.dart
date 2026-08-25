@@ -37,10 +37,11 @@ class SettingsScreen extends StatelessWidget {
             title: 'PANTHER',
             subtitle: 'Your Second Mind. Version 1.0.0',
           ),
-          const _SettingsTile(
+          _SettingsTile(
             icon: Icons.help_outline_rounded,
             title: 'Help & About',
             subtitle: 'Context-aware AI agent — learn how memory and tools work.',
+            onTap: () => context.push('/help'),
           ),
           const SizedBox(height: AppSpacing.xxl),
           Text('Account', style: theme.textTheme.titleSmall),
@@ -61,11 +62,12 @@ class SettingsScreen extends StatelessWidget {
 }
 
 class _SettingsTile extends StatelessWidget {
-  const _SettingsTile({required this.icon, required this.title, required this.subtitle});
+  const _SettingsTile({required this.icon, required this.title, required this.subtitle, this.onTap});
 
   final IconData icon;
   final String title;
   final String subtitle;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +76,8 @@ class _SettingsTile extends StatelessWidget {
       leading: Icon(icon),
       title: Text(title),
       subtitle: Text(subtitle),
+      trailing: onTap == null ? null : const Icon(Icons.chevron_right_rounded),
+      onTap: onTap,
     );
   }
 }

@@ -5,6 +5,8 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/panther_mark.dart';
+import '../../../core/widgets/social_sign_in_row.dart';
+import '../../../data/repositories/auth_repository.dart';
 import '../application/auth_controller.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -28,6 +30,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit() async {
     final auth = context.read<AuthController>();
     final ok = await auth.signIn(email: _email.text.trim(), password: _password.text);
+    if (ok && mounted) context.go('/home');
+  }
+
+  Future<void> _social(SocialProvider provider) async {
+    final auth = context.read<AuthController>();
+    final ok = await auth.signInWithSocial(provider);
     if (ok && mounted) context.go('/home');
   }
 
@@ -80,6 +88,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: const Text('Forgot password?'),
                       ),
                     ),
+                    const SizedBox(height: AppSpacing.lg),
+                    SocialSignInRow(busy: auth.busy, onSelect: _social),
                   ],
                 ),
               ),

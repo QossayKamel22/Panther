@@ -1,114 +1,63 @@
 import 'package:flutter/material.dart';
 
-/// The PANTHER glyph — a "P" whose bowl is drawn as a panther's head in
-/// profile (pointed ear, brow, jaw, glowing eye) with three speed-lines
-/// trailing off the ear, redrawn as a scalable vector path from the source
-/// brand mark (see assets/branding/logo_source.png) so it stays crisp at any
-/// size: nav bars, list tiles, buttons — anywhere the full raster app icon
-/// would be too heavy or the wrong shape.
+/// The PANTHER brand mark — the metallic "P"/panther-head glyph, always
+/// rendered on its own small dark plate with a soft blue glow behind it.
+///
+/// The source artwork (assets/branding/panther_mark.png) carves the
+/// panther's face out of the glyph as transparent negative space that's
+/// open to the glyph's outer silhouette (not a sealed hole), so it only
+/// reads correctly against a dark backdrop — hence the fixed plate here
+/// rather than tinting/theming the mark itself. This keeps the glyph
+/// legible and on-brand everywhere: light mode, dark mode, any surface.
 class PantherMark extends StatelessWidget {
-  const PantherMark({
-    super.key,
-    this.size = 28,
-    this.color,
-    this.glow = true,
-  });
+  const PantherMark({super.key, this.size = 28, this.glow = true});
 
   final double size;
-  final Color? color;
   final bool glow;
+
+  static const _plateColor = Color(0xFF05070C);
+  static const _glowColor = Color(0xFF3B82F6);
 
   @override
   Widget build(BuildContext context) {
-    final resolved = color ?? Theme.of(context).colorScheme.primary;
     return SizedBox(
       width: size,
       height: size,
-      child: CustomPaint(
-        painter: _PantherMarkPainter(color: resolved, glow: glow),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (glow)
+            Container(
+              width: size * 1.55,
+              height: size * 1.55,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [Color(0x553B82F6), Color(0x003B82F6)],
+                ),
+              ),
+            ),
+          Container(
+            width: size,
+            height: size,
+            padding: EdgeInsets.all(size * 0.16),
+            decoration: BoxDecoration(
+              color: _plateColor,
+              borderRadius: BorderRadius.circular(size * 0.28),
+              boxShadow: [
+                BoxShadow(
+                  color: _glowColor.withValues(alpha: 0.35),
+                  blurRadius: size * 0.25,
+                  spreadRadius: size * 0.01,
+                ),
+              ],
+            ),
+            child: Image.asset('assets/branding/panther_mark.png', fit: BoxFit.contain),
+          ),
+        ],
       ),
     );
   }
-}
-
-class _PantherMarkPainter extends CustomPainter {
-  _PantherMarkPainter({required this.color, required this.glow});
-
-  final Color color;
-  final bool glow;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final s = size.width / 100;
-    final fill = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-    final eyeFill = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    if (glow) {
-      final glowPaint = Paint()
-        ..color = color.withValues(alpha: 0.35)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 6 * s);
-      canvas.drawCircle(Offset(66 * s, 50 * s), 5 * s, glowPaint);
-    }
-
-    // Speed lines trailing the ear.
-    final linePaint = Paint()
-      ..color = color.withValues(alpha: 0.55)
-      ..strokeWidth = 2.6 * s
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(4 * s, 40 * s), Offset(24 * s, 40 * s), linePaint);
-    canvas.drawLine(Offset(2 * s, 48 * s), Offset(22 * s, 48 * s), linePaint);
-    canvas.drawLine(Offset(4 * s, 56 * s), Offset(20 * s, 56 * s), linePaint);
-
-    // The glyph body: P-stem merged with a panther head silhouette.
-    final path = Path()
-      // stem, with the small flared foot on its left edge
-      ..moveTo(38 * s, 58 * s)
-      ..lineTo(48 * s, 58 * s)
-      ..lineTo(48 * s, 92 * s)
-      ..lineTo(38 * s, 92 * s)
-      ..lineTo(38 * s, 70 * s)
-      ..lineTo(30 * s, 78 * s)
-      ..lineTo(37 * s, 58 * s)
-      ..close();
-    canvas.drawPath(path, fill);
-
-    final head = Path()
-      ..moveTo(30 * s, 34 * s)
-      // brow / top of ear, flat run to the right
-      ..lineTo(72 * s, 34 * s)
-      // curve down the back of the head into the jaw
-      ..cubicTo(84 * s, 35 * s, 90 * s, 44 * s, 88 * s, 52 * s)
-      // nose tip
-      ..lineTo(94 * s, 58 * s)
-      ..lineTo(82 * s, 60 * s)
-      // chin curving back in
-      ..cubicTo(78 * s, 66 * s, 68 * s, 68 * s, 60 * s, 64 * s)
-      ..cubicTo(52 * s, 60 * s, 48 * s, 52 * s, 48 * s, 44 * s)
-      ..lineTo(48 * s, 58 * s)
-      ..lineTo(38 * s, 58 * s)
-      ..lineTo(38 * s, 44 * s)
-      // pointed ear notch back to start
-      ..cubicTo(38 * s, 40 * s, 33 * s, 37 * s, 30 * s, 34 * s)
-      ..close();
-    canvas.drawPath(head, fill);
-
-    // Eye.
-    final eye = Path()
-      ..moveTo(70 * s, 46 * s)
-      ..lineTo(74 * s, 50 * s)
-      ..lineTo(70 * s, 54 * s)
-      ..lineTo(66 * s, 50 * s)
-      ..close();
-    canvas.drawPath(eye, eyeFill);
-  }
-
-  @override
-  bool shouldRepaint(covariant _PantherMarkPainter oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.glow != glow;
 }
 
 /// Full brand lockup: glyph + wordmark, for headers, splash and login.

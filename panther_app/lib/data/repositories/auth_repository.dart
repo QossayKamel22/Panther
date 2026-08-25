@@ -9,6 +9,21 @@ class AuthFailure implements Exception {
   String toString() => message;
 }
 
+/// Thrown instead of [AuthFailure] when the user closed the provider popup
+/// or backed out of the flow — not an error, so the UI shouldn't show one.
+class AuthCancelled implements Exception {
+  const AuthCancelled();
+}
+
+enum SocialProvider {
+  google('Google'),
+  apple('Apple'),
+  microsoft('Microsoft');
+
+  const SocialProvider(this.label);
+  final String label;
+}
+
 /// Single abstraction the UI talks to for auth — screens never import
 /// `firebase_auth` directly, so the demo/local fallback and the real
 /// Firebase path are interchangeable behind one interface.
@@ -17,6 +32,7 @@ abstract class AuthRepository {
   AppUser? get currentUser;
   Future<AppUser> signIn({required String email, required String password});
   Future<AppUser> register({required String email, required String password});
+  Future<AppUser> signInWithSocial(SocialProvider provider);
   Future<void> sendPasswordReset(String email);
   Future<void> signOut();
 }
@@ -56,6 +72,24 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<AppUser> signInWithSocial(SocialProvider provider) async {
+    final authProvider = switch (provider) {
+      SocialProvider.google => fb.GoogleAuthProvider(),
+      SocialProvider.apple => fb.OAuthProvider('apple.com'),
+      SocialProvider.microsoft => fb.OAuthProvider('microsoft.com'),
+    };
+    try {
+      final cred = await _auth.signInWithProvider(authProvider);
+      return _map(cred.user!);
+    } on fb.FirebaseAuthException catch (e) {
+      if (e.code case 'popup-closed-by-user' || 'cancelled-popup-request' || 'web-context-canceled' || 'canceled') {
+        throw const AuthCancelled();
+      }
+      throw AuthFailure(_friendlyMessage(e, provider: provider));
+    }
+  }
+
+  @override
   Future<void> sendPasswordReset(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
@@ -67,14 +101,15 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<void> signOut() => _auth.signOut();
 
-  String _friendlyMessage(fb.FirebaseAuthException e) => switch (e.code) {
+  String _friendlyMessage(fb.FirebaseAuthException e, {SocialProvider? provider}) => switch (e.code) {
         'user-not-found' || 'wrong-password' || 'invalid-credential' => 'Incorrect email or password.',
         'email-already-in-use' => 'An account with this email already exists.',
         'weak-password' => 'Choose a stronger password (at least 6 characters).',
         'invalid-email' => 'That email address looks invalid.',
         'network-request-failed' => 'Network error — check your connection and try again.',
-        'operation-not-allowed' || 'configuration-not-found' =>
-          'Email/password sign-in isn\'t enabled on this Firebase project yet — enable it in the Firebase console under Authentication > Sign-in method.',
+        'operation-not-allowed' || 'configuration-not-found' => provider != null
+            ? 'Sign-in with ${provider.label} isn\'t enabled on this Firebase project yet — enable it in the Firebase console under Authentication > Sign-in method.'
+            : 'Email/password sign-in isn\'t enabled on this Firebase project yet — enable it in the Firebase console under Authentication > Sign-in method.',
         _ => e.message ?? 'Something went wrong. Please try again.',
       };
 }
@@ -124,6 +159,14 @@ class LocalAuthRepository implements AuthRepository {
     _user = user;
     _controller.add(user);
     return user;
+  }
+
+  @override
+  Future<AppUser> signInWithSocial(SocialProvider provider) async {
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    throw AuthFailure(
+      'Sign in with ${provider.label} needs a connected Firebase project — currently running in local/offline mode.',
+    );
   }
 
   @override

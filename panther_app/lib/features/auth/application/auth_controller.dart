@@ -36,6 +36,9 @@ class AuthController extends ChangeNotifier {
   Future<bool> register({required String email, required String password}) =>
       _guard(() => _repository.register(email: email, password: password));
 
+  Future<bool> signInWithSocial(SocialProvider provider) =>
+      _guard(() => _repository.signInWithSocial(provider));
+
   Future<bool> sendPasswordReset(String email) =>
       _guard(() => _repository.sendPasswordReset(email));
 
@@ -50,6 +53,10 @@ class AuthController extends ChangeNotifier {
       _busy = false;
       notifyListeners();
       return true;
+    } on AuthCancelled {
+      _busy = false;
+      notifyListeners();
+      return false;
     } on AuthFailure catch (e) {
       _busy = false;
       _error = e.message;

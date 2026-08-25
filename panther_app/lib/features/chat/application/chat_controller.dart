@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../../../data/models/chat_message.dart';
+import '../../../data/models/memory_entry.dart';
 import '../../../data/services/demo_ai_service.dart';
 import '../../memory/application/memory_controller.dart';
 
@@ -39,6 +40,10 @@ class ChatController extends ChangeNotifier {
     _messages.add(assistantMessage);
     _isStreaming = true;
     notifyListeners();
+
+    if (aiService.isRememberRequest(trimmed)) {
+      await memory.add(scope: MemoryScope.fact, content: aiService.extractMemoryContent(trimmed));
+    }
 
     var accumulated = '';
     await for (final delta in aiService.streamReply(trimmed, memoryItemCount: memory.entries.length)) {
