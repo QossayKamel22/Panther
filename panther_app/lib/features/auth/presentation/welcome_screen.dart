@@ -49,7 +49,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const PantherMark(size: 96),
+                        const PantherMark(size: 96, glow: true),
                         const SizedBox(height: AppSpacing.xl),
                         const Text(
                           'PANTHER',

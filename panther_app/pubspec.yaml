@@ -28,6 +28,9 @@ dependencies:
   # Local persistence (theme preference, etc.)
   shared_preferences: ^2.5.3
 
+  # Vector brand mark (theme-aware SVG logo)
+  flutter_svg: ^2.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
