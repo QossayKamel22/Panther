@@ -5,11 +5,32 @@ import '../../../data/repositories/memory_repository.dart';
 
 class MemoryController extends ChangeNotifier {
   MemoryController(this._repository, {this.uid}) {
-    _sub = _repository.watch().listen((entries) {
-      _entries = entries;
-      _loading = false;
-      notifyListeners();
-    });
+    _listen();
+  }
+
+  void _listen() {
+    _sub = _repository.watch().listen(
+      (entries) {
+        _entries = entries;
+        _loading = false;
+        _error = null;
+        notifyListeners();
+      },
+      onError: (Object e) {
+        _loading = false;
+        _error =
+            'Couldn\'t load your memory. Check your connection and try again.';
+        notifyListeners();
+      },
+    );
+  }
+
+  void retry() {
+    _sub.cancel();
+    _loading = true;
+    _error = null;
+    notifyListeners();
+    _listen();
   }
 
   /// Which user this controller's data belongs to (null = local/guest).
@@ -19,13 +40,15 @@ class MemoryController extends ChangeNotifier {
   final String? uid;
 
   final MemoryRepository _repository;
-  late final StreamSubscription<List<MemoryEntry>> _sub;
+  late StreamSubscription<List<MemoryEntry>> _sub;
 
   List<MemoryEntry> _entries = [];
   bool _loading = true;
+  String? _error;
 
   List<MemoryEntry> get entries => _entries;
   bool get loading => _loading;
+  String? get error => _error;
 
   Future<void> add({required MemoryScope scope, required String content}) {
     final trimmed = content.trim();

@@ -21,7 +21,12 @@ class MemoryScreen extends StatelessWidget {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.md),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.md,
+            ),
             child: Text(
               'What PANTHER remembers about you. Nothing is stored unless you explicitly ask it to.',
               style: theme.textTheme.bodyMedium,
@@ -30,18 +35,29 @@ class MemoryScreen extends StatelessWidget {
           Expanded(
             child: controller.loading
                 ? const AppLoadingState()
+                : controller.error != null
+                ? AppErrorState(
+                    message: controller.error,
+                    onRetry: controller.retry,
+                  )
                 : controller.entries.isEmpty
-                    ? const AppEmptyState(
-                        icon: Icons.bookmark_border_rounded,
-                        title: 'Nothing saved yet',
-                        message: 'Tell PANTHER something to remember from the chat.',
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-                        itemCount: controller.entries.length,
-                        separatorBuilder: (context, i) => const SizedBox(height: AppSpacing.sm),
-                        itemBuilder: (context, i) => _MemoryTile(entry: controller.entries[i]),
-                      ),
+                ? const AppEmptyState(
+                    icon: Icons.bookmark_border_rounded,
+                    title: 'Nothing saved yet',
+                    message:
+                        'Tell PANTHER something to remember from the chat.',
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.sm,
+                    ),
+                    itemCount: controller.entries.length,
+                    separatorBuilder: (context, i) =>
+                        const SizedBox(height: AppSpacing.sm),
+                    itemBuilder: (context, i) =>
+                        _MemoryTile(entry: controller.entries[i]),
+                  ),
           ),
         ],
       ),
@@ -64,7 +80,8 @@ class MemoryScreen extends StatelessWidget {
             left: AppSpacing.lg,
             right: AppSpacing.lg,
             top: AppSpacing.lg,
-            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + AppSpacing.lg,
+            bottom:
+                MediaQuery.of(sheetContext).viewInsets.bottom + AppSpacing.lg,
           ),
           child: StatefulBuilder(
             builder: (context, setState) {
@@ -72,7 +89,10 @@ class MemoryScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Remember something', style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    'Remember something',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   const SizedBox(height: AppSpacing.md),
                   Wrap(
                     spacing: AppSpacing.xs,
@@ -90,12 +110,17 @@ class MemoryScreen extends StatelessWidget {
                     controller: textController,
                     autofocus: true,
                     maxLines: 3,
-                    decoration: const InputDecoration(hintText: 'What should PANTHER remember?'),
+                    decoration: const InputDecoration(
+                      hintText: 'What should PANTHER remember?',
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   FilledButton(
                     onPressed: () {
-                      controller.add(scope: scope, content: textController.text);
+                      controller.add(
+                        scope: scope,
+                        content: textController.text,
+                      );
                       Navigator.of(sheetContext).pop();
                     },
                     child: const Text('Save'),
@@ -134,10 +159,18 @@ class _MemoryTile extends StatelessWidget {
               children: [
                 Text(
                   entry.scope.name.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary, letterSpacing: 0.6),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    letterSpacing: 0.6,
+                  ),
                 ),
                 const SizedBox(height: 4),
-                Text(entry.content, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
+                Text(
+                  entry.content,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
               ],
             ),
           ),
