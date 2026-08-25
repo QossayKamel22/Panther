@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/app_user.dart';
 
 class AuthFailure implements Exception {
@@ -79,7 +80,11 @@ class FirebaseAuthRepository implements AuthRepository {
       SocialProvider.microsoft => fb.OAuthProvider('microsoft.com'),
     };
     try {
-      final cred = await _auth.signInWithProvider(authProvider);
+      // signInWithProvider is mobile/desktop-only (UnimplementedError on
+      // web) — the web equivalent is signInWithPopup.
+      final cred = kIsWeb
+          ? await _auth.signInWithPopup(authProvider)
+          : await _auth.signInWithProvider(authProvider);
       return _map(cred.user!);
     } on fb.FirebaseAuthException catch (e) {
       if (e.code case 'popup-closed-by-user' || 'cancelled-popup-request' || 'web-context-canceled' || 'canceled') {
