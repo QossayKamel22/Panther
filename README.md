@@ -150,7 +150,7 @@ PANTHER understands the request, prepares the action, and asks for confirmation 
 
 ### Screenshots & Logo  
 
-<img width="491" height="559" alt="IMG_4864" src="https://github.com/user-attachments/assets/d609bde3-af97-4da9-81aa-b1161d66827e" />
+
 
 
 # 🏗️ Architecture
