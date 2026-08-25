@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "906321675056",
+    "project_id": "panther-app-mvp",
+    "storage_bucket": "panther-app-mvp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:906321675056:android:4ed529f60ef48b01b7bef5",
+        "android_client_info": {
+          "package_name": "com.panther.panther_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARtlt4OOmsxpfW6b7YXvK5BiGHIG0blo8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
