@@ -16,12 +16,8 @@ class ProfileScreen extends StatelessWidget {
     final memory = context.watch<MemoryController>();
     final user = auth.user;
     final theme = Theme.of(context);
-    final initial = (user?.displayName?.isNotEmpty == true
-            ? user!.displayName![0]
-            : user?.email?.isNotEmpty == true
-                ? user!.email![0]
-                : '?')
-        .toUpperCase();
+    final name = user?.displayNameOrFallback ?? 'Guest';
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
@@ -40,7 +36,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Text(user?.displayName ?? 'Guest', style: theme.textTheme.headlineSmall),
+                Text(name, style: theme.textTheme.headlineSmall),
                 if (user?.email != null)
                   Text(user!.email!, style: theme.textTheme.bodyMedium),
               ],
