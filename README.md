@@ -2,8 +2,8 @@
 
 <!-- PANTHER LOGO -->
 <p align="center">
-  <<img width="1254" height="1254" alt="8DDCFE40-27ED-4605-A3C0-6FB0B80B9AF2" src="https://github.com/user-attachments/assets/291742db-8511-4145-8b3d-c9108210ba8e" />
- alt="PANTHER Logo" width="180"/>
+  <img width="1254" height="1254" alt="8DDCFE40-27ED-4605-A3C0-6FB0B80B9AF2" src="https://github.com/user-attachments/assets/291742db-8511-4145-8b3d-c9108210ba8e" />
+
 </p>
 
 # PANTHER
