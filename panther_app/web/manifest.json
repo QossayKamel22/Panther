@@ -1,11 +1,11 @@
 {
-    "name": "panther_app",
-    "short_name": "panther_app",
+    "name": "PANTHER",
+    "short_name": "PANTHER",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#05070C",
-    "theme_color": "#3B82F6",
-    "description": "A new Flutter project.",
+    "theme_color": "#3563E9",
+    "description": "PANTHER — Your Second Mind. A context-aware personal AI agent.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

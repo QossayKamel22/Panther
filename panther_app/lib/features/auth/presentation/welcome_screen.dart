@@ -64,7 +64,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         Container(
                           width: 28,
                           height: 2,
-                          color: const Color(0xFF5EA1FF),
+                          color: const Color(0xFF5E8CFF),
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         const Text(
@@ -73,7 +73,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 3,
-                            color: Color(0xFF7FB4FF),
+                            color: Color(0xFF89ABFF),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.lg),

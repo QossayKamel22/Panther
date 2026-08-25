@@ -43,7 +43,7 @@ class PantherMark extends StatelessWidget {
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
-                colors: [Color(0x553B82F6), Color(0x003B82F6)],
+                colors: [Color(0x553563E9), Color(0x003563E9)],
               ),
             ),
           ),
