@@ -154,7 +154,8 @@ PANTHER understands the request, prepares the action, and asks for confirmation 
 
 ---
 
-<img width="1512" height="982" alt="Screenshot 2026-08-26 at 20 01 24" src="https://github.com/user-attachments/assets/9ad40387-4684-4594-b457-0460988d8dd8" />
+<img width="1512" height="982" alt="Screenshot 2026-08-26 at 20 01 45" src="https://github.com/user-attachments/assets/2793e192-3726-4442-ab5f-2f59d0258041" />
+
 
 ---
 
