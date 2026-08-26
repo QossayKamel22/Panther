@@ -50,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
                   label: 'Memories saved',
                   value: '${memory.entries.length}',
                   icon: Icons.bookmark_rounded,
-                  onTap: () => context.push('/memory'),
+                  onTap: () => context.go('/memory'),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
