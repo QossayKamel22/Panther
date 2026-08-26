@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/panther_mark.dart';
+import '../../../core/widgets/source_chip.dart';
 import '../../../data/models/chat_message.dart';
 import '../application/chat_controller.dart';
 
@@ -49,6 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final chat = context.watch<ChatController>();
     final theme = Theme.of(context);
+    final showStatus = chat.isStreaming && chat.status != null;
 
     return Column(
       children: [
@@ -63,11 +65,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 icon: const Icon(Icons.search_rounded),
                 tooltip: 'Search memory',
               ),
-              IconButton(
-                onPressed: () => context.push('/memory'),
-                icon: const Icon(Icons.bookmark_border_rounded),
-                tooltip: 'Memory',
-              ),
             ],
           ),
         ),
@@ -77,9 +74,14 @@ class _ChatScreenState extends State<ChatScreen> {
               : ListView.separated(
                   controller: _scroll,
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
-                  itemCount: chat.messages.length,
+                  itemCount: chat.messages.length + (showStatus ? 1 : 0),
                   separatorBuilder: (context, i) => const SizedBox(height: AppSpacing.md),
-                  itemBuilder: (context, i) => _MessageBubble(message: chat.messages[i]),
+                  itemBuilder: (context, i) {
+                    if (i == chat.messages.length) {
+                      return _StatusRow(status: chat.status!);
+                    }
+                    return _MessageBubble(message: chat.messages[i]);
+                  },
                 ),
         ),
         Padding(
@@ -93,6 +95,11 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             child: Row(
               children: [
+                IconButton(
+                  onPressed: null,
+                  tooltip: 'Attach (coming soon)',
+                  icon: Icon(Icons.attach_file_rounded, color: theme.colorScheme.outlineVariant),
+                ),
                 Expanded(
                   child: TextField(
                     controller: _input,
@@ -106,6 +113,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 IconButton(
+                  onPressed: null,
+                  tooltip: 'Voice (coming soon)',
+                  icon: Icon(Icons.mic_none_rounded, color: theme.colorScheme.outlineVariant),
+                ),
+                IconButton(
                   onPressed: chat.isStreaming ? null : () => _send(),
                   icon: Icon(
                     Icons.arrow_upward_rounded,
@@ -117,6 +129,31 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _StatusRow extends StatelessWidget {
+  const _StatusRow({required this.status});
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 12,
+            height: 12,
+            child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.primary),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(status, style: theme.textTheme.bodySmall),
+        ],
+      ),
     );
   }
 }
@@ -173,25 +210,41 @@ class _MessageBubble extends StatelessWidget {
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 560),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-          decoration: BoxDecoration(
-            color: isUser ? theme.colorScheme.primary : theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: isUser ? null : Border.all(color: theme.colorScheme.outline),
-          ),
-          child: message.content.isEmpty
-              ? SizedBox(
-                  width: 24,
-                  child: Text('•••', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
-                )
-              : Text(
-                  message.content,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: isUser ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface,
-                    height: 1.45,
-                  ),
-                ),
+        child: Column(
+          crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+              decoration: BoxDecoration(
+                color: isUser ? theme.colorScheme.primary : theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: isUser ? null : Border.all(color: theme.colorScheme.outline),
+              ),
+              child: message.content.isEmpty
+                  ? SizedBox(
+                      width: 24,
+                      child: Text('•••', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
+                    )
+                  : Text(
+                      message.content,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: isUser ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface,
+                        height: 1.45,
+                      ),
+                    ),
+            ),
+            if (message.sources.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  for (final s in message.sources)
+                    SourceChip(icon: s == 'Calendar' ? Icons.calendar_month_rounded : Icons.bookmark_rounded, label: s),
+                ],
+              ),
+            ],
+          ],
         ),
       ),
     );

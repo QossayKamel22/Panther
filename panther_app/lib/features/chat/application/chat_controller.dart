@@ -15,9 +15,14 @@ class ChatController extends ChangeNotifier {
 
   final List<ChatMessage> _messages = [];
   bool _isStreaming = false;
+  String? _status;
 
   List<ChatMessage> get messages => List.unmodifiable(_messages);
   bool get isStreaming => _isStreaming;
+
+  /// The transient "Reviewing your calendar…" line shown before the reply
+  /// starts streaming in — cleared once real content arrives.
+  String? get status => _status;
 
   Future<void> send(String text) async {
     final trimmed = text.trim();
@@ -39,23 +44,39 @@ class ChatController extends ChangeNotifier {
     _messages.add(userMessage);
     _messages.add(assistantMessage);
     _isStreaming = true;
+    _status = aiService.statusFor(trimmed);
     notifyListeners();
 
     if (aiService.isRememberRequest(trimmed)) {
       await memory.add(scope: MemoryScope.fact, content: aiService.extractMemoryContent(trimmed));
     }
 
+    await Future<void>.delayed(const Duration(milliseconds: 280));
+
     var accumulated = '';
+    var first = true;
     await for (final delta in aiService.streamReply(trimmed, memory: memory.entries)) {
       accumulated += delta;
       final index = _messages.indexWhere((m) => m.id == assistantMessage.id);
       if (index == -1) break;
+      if (first) {
+        _status = null;
+        first = false;
+      }
       assistantMessage = assistantMessage.copyWith(content: accumulated);
       _messages[index] = assistantMessage;
       notifyListeners();
     }
 
+    final index = _messages.indexWhere((m) => m.id == assistantMessage.id);
+    if (index != -1) {
+      _messages[index] = assistantMessage.copyWith(
+        sources: aiService.sourcesFor(trimmed, memory: memory.entries),
+      );
+    }
+
     _isStreaming = false;
+    _status = null;
     notifyListeners();
   }
 }

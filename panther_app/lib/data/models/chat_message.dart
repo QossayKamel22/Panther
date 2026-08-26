@@ -6,6 +6,7 @@ class ChatMessage {
     required this.role,
     required this.content,
     required this.createdAt,
+    this.sources = const [],
   });
 
   final String id;
@@ -13,10 +14,15 @@ class ChatMessage {
   final String content;
   final DateTime createdAt;
 
-  ChatMessage copyWith({String? content}) => ChatMessage(
+  /// Which context this reply actually drew on (e.g. "Calendar", "Memory")
+  /// — shown as source chips under the message. Empty when nothing did.
+  final List<String> sources;
+
+  ChatMessage copyWith({String? content, List<String>? sources}) => ChatMessage(
         id: id,
         role: role,
         content: content ?? this.content,
         createdAt: createdAt,
+        sources: sources ?? this.sources,
       );
 }
