@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../../data/services/firebase_bootstrap.dart';
+import '../../features/auth/application/auth_controller.dart';
 import '../responsive/breakpoints.dart';
 import 'panther_mark.dart';
 
@@ -39,6 +43,7 @@ class AdaptiveScaffold extends StatelessWidget {
         bottomNavigationBar: NavigationBar(
           selectedIndex: selectedIndex,
           onDestinationSelected: onDestinationSelected,
+          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
           destinations: [
             for (final d in destinations)
               NavigationDestination(icon: Icon(d.icon), selectedIcon: Icon(d.selectedIcon), label: d.label),
@@ -108,7 +113,7 @@ class _Sidebar extends StatelessWidget {
     }
 
     return SizedBox(
-      width: 232,
+      width: 240,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
         child: Column(
@@ -125,7 +130,73 @@ class _Sidebar extends StatelessWidget {
                 selected: i == selectedIndex,
                 onTap: () => onDestinationSelected(i),
               ),
+            const Spacer(),
+            const _SidebarFooter(),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// User identity + a real connection status (never an invented plan/billing
+/// tier) at the base of the expanded sidebar.
+class _SidebarFooter extends StatelessWidget {
+  const _SidebarFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final auth = context.watch<AuthController>();
+    final name = auth.user?.displayNameOrFallback ?? 'Guest';
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    final connected = FirebaseBootstrap.isAvailable;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: () => context.push('/profile'),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.15),
+                child: Text(initial, style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w600)),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      name,
+                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: connected ? const Color(0xFF0E8F63) : theme.colorScheme.outlineVariant,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(connected ? 'Connected' : 'Local mode', style: theme.textTheme.labelSmall),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

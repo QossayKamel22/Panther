@@ -9,6 +9,7 @@ import 'data/repositories/auth_repository.dart';
 import 'data/repositories/memory_repository.dart';
 import 'data/services/demo_ai_service.dart';
 import 'data/services/firebase_bootstrap.dart';
+import 'features/actions/application/actions_controller.dart';
 import 'features/auth/application/auth_controller.dart';
 import 'features/chat/application/chat_controller.dart';
 import 'features/memory/application/memory_controller.dart';
@@ -27,6 +28,7 @@ class PantherApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeController()),
+        ChangeNotifierProvider(create: (_) => ActionsController()),
         Provider<AuthRepository>(
           create: (_) => FirebaseBootstrap.isAvailable ? FirebaseAuthRepository() : LocalAuthRepository(),
         ),
