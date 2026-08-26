@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
@@ -14,33 +12,27 @@ import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/splash/presentation/splash_screen.dart';
 
 GoRouter buildRouter(AuthController auth) {
   return GoRouter(
     initialLocation: '/',
     refreshListenable: auth,
-    redirect: (context, state) async {
+    redirect: (context, state) {
       final loc = state.matchedLocation;
       final onAuthRoute = loc == '/welcome' || loc == '/login' || loc == '/register' || loc == '/forgot-password';
 
-      if (loc == '/') {
-        bool onboarded;
-        try {
-          final prefs = await SharedPreferences.getInstance();
-          onboarded = prefs.getBool(onboardingSeenKey) ?? false;
-        } catch (_) {
-          onboarded = true;
-        }
-        if (!onboarded) return '/onboarding';
-        return auth.status == AuthStatus.authenticated ? '/home' : '/welcome';
-      }
+      // SplashScreen and OnboardingScreen decide their own next stop
+      // (SplashScreen reads onboarding/auth state itself and navigates once
+      // resolved — a redirect from here would never let it actually paint).
+      if (loc == '/' || loc == '/onboarding') return null;
 
       if (auth.status == AuthStatus.authenticated && onAuthRoute) return '/home';
-      if (auth.status == AuthStatus.unauthenticated && !onAuthRoute && loc != '/onboarding') return '/welcome';
+      if (auth.status == AuthStatus.unauthenticated && !onAuthRoute) return '/welcome';
       return null;
     },
     routes: [
-      GoRoute(path: '/', builder: (context, state) => const _Splash()),
+      GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
       GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingScreen()),
       GoRoute(path: '/welcome', builder: (context, state) => const WelcomeScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
@@ -59,13 +51,4 @@ GoRouter buildRouter(AuthController auth) {
       ),
     ],
   );
-}
-
-class _Splash extends StatelessWidget {
-  const _Splash();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
-  }
 }
