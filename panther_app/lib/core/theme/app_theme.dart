@@ -141,8 +141,15 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: palette.surface,
+        // Explicit (not the Material 3 default secondaryContainer) — our
+        // secondary token is a dark steel tone, which combined with the
+        // default labelStyle color below made a selected chip's label
+        // unreadable against it.
+        selectedColor: palette.primary.withValues(alpha: 0.14),
         side: BorderSide(color: palette.border),
         labelStyle: textTheme.labelMedium,
+        secondaryLabelStyle: textTheme.labelMedium?.copyWith(color: palette.primary, fontWeight: FontWeight.w600),
+        checkmarkColor: palette.primary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
       ),
