@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'core/constants/demo_account.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
@@ -62,7 +63,8 @@ class PantherApp extends StatelessWidget {
     if (FirebaseBootstrap.isAvailable && uid != null) {
       return FirestoreMemoryRepository(uid);
     }
-    return LocalMemoryRepository();
+    final isDemo = uid == DemoAccount.email;
+    return LocalMemoryRepository(seed: isDemo ? DemoAccount.seedMemory() : const []);
   }
 }
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import '../../core/constants/demo_account.dart';
 import '../models/app_user.dart';
 
 class AuthFailure implements Exception {
@@ -34,6 +35,11 @@ abstract class AuthRepository {
   Future<AppUser> signIn({required String email, required String password});
   Future<AppUser> register({required String email, required String password});
   Future<AppUser> signInWithSocial(SocialProvider provider);
+
+  /// One-tap entry into a pre-populated account — for pitching/demoing the
+  /// product without typing credentials live.
+  Future<AppUser> signInDemo();
+
   Future<void> sendPasswordReset(String email);
   Future<void> signOut();
 }
@@ -93,6 +99,9 @@ class FirebaseAuthRepository implements AuthRepository {
       throw AuthFailure(_friendlyMessage(e, provider: provider));
     }
   }
+
+  @override
+  Future<AppUser> signInDemo() => signIn(email: DemoAccount.email, password: DemoAccount.password);
 
   @override
   Future<void> sendPasswordReset(String email) async {
@@ -172,6 +181,16 @@ class LocalAuthRepository implements AuthRepository {
     throw AuthFailure(
       'Sign in with ${provider.label} needs a connected Firebase project — currently running in local/offline mode.',
     );
+  }
+
+  @override
+  Future<AppUser> signInDemo() async {
+    try {
+      return await signIn(email: DemoAccount.email, password: DemoAccount.password);
+    } on AuthFailure {
+      // First run in this session — seed the demo account locally.
+      return register(email: DemoAccount.email, password: DemoAccount.password);
+    }
   }
 
   @override

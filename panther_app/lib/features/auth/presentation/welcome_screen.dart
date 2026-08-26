@@ -24,6 +24,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     if (ok && mounted) context.go('/home');
   }
 
+  Future<void> _viewDemo() async {
+    final auth = context.read<AuthController>();
+    final ok = await auth.signInDemo();
+    if (ok && mounted) context.go('/home');
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthController>();
@@ -98,14 +104,23 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           const SizedBox(height: AppSpacing.md),
                         ],
                         AppButton(
+                          label: 'View demo',
+                          icon: Icons.play_circle_outline_rounded,
+                          expand: true,
+                          loading: auth.busy,
+                          onPressed: _viewDemo,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        AppButton(
                           label: 'Sign in',
+                          variant: AppButtonVariant.secondary,
                           expand: true,
                           onPressed: () => context.push('/login'),
                         ),
                         const SizedBox(height: AppSpacing.md),
                         AppButton(
                           label: 'Create account',
-                          variant: AppButtonVariant.secondary,
+                          variant: AppButtonVariant.ghost,
                           expand: true,
                           onPressed: () => context.push('/register'),
                         ),

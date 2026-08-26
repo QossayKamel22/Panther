@@ -1,10 +1,10 @@
-const _pantherVoiceNote =
-    "(Demo mode — no AI provider is configured. Connect a real model to enable full reasoning.)";
+import '../models/memory_entry.dart';
 
 /// Deterministic, dependency-free reply generator used until a real model
-/// backend is wired in. Ported 1:1 from the web app's `demoProvider.ts` so
-/// PANTHER never looks broken while running standalone — it streams a
-/// clearly-labeled, on-brand response instead of failing outright.
+/// backend is wired in. Streams pattern-matched, on-brand replies that pull
+/// in whatever's actually in memory — a saved fact or instruction really
+/// does shape the next answer, surfaced as a short briefing rather than
+/// stitched awkwardly into a sentence.
 class DemoAiService {
   const DemoAiService();
 
@@ -25,32 +25,59 @@ class DemoAiService {
 
   /// Streams the reply word-by-word so the UI exercises the same streaming
   /// path a real provider would use.
-  Stream<String> streamReply(String userText, {required int memoryItemCount}) async* {
-    final text = _composeReply(userText, memoryItemCount: memoryItemCount);
+  Stream<String> streamReply(String userText, {required List<MemoryEntry> memory}) async* {
+    final text = _composeReply(userText, memory: memory);
     for (final word in text.split(' ')) {
       await Future<void>.delayed(const Duration(milliseconds: 18));
       yield '$word ';
     }
   }
 
-  String _composeReply(String userText, {required int memoryItemCount}) {
-    final lower = userText.toLowerCase();
-    final memoryNote = memoryItemCount > 0
-        ? " I'm keeping $memoryItemCount thing${memoryItemCount == 1 ? '' : 's'} from memory in mind."
-        : '';
+  MemoryEntry? _find(List<MemoryEntry> memory, MemoryScope scope) {
+    for (final e in memory) {
+      if (e.scope == scope) return e;
+    }
+    return null;
+  }
 
-    if (RegExp(r'what.*(matter|focus|priorit)').hasMatch(lower)) {
-      return "You have three things worth attention today. The first is time-sensitive — I'd handle it before your next meeting. $_pantherVoiceNote$memoryNote";
+  String _composeReply(String userText, {required List<MemoryEntry> memory}) {
+    final lower = userText.toLowerCase();
+    final project = _find(memory, MemoryScope.project);
+    final decision = _find(memory, MemoryScope.decision);
+    final instruction = _find(memory, MemoryScope.instruction);
+    final preference = _find(memory, MemoryScope.preference);
+    final fact = _find(memory, MemoryScope.fact);
+
+    if (RegExp(r'what.*(matter|focus|priorit|important)').hasMatch(lower)) {
+      if (project == null) {
+        return "Nothing's flagged yet. Tell me what you're working on and I'll start tracking what matters.";
+      }
+      final lines = ["Top priority: ${project.content}"];
+      if (instruction != null) lines.add('Standing rule: ${instruction.content}');
+      if (fact != null) lines.add(fact.content);
+      return "Here's what's worth your attention today.\n\n${lines.map((l) => '• $l').join('\n')}";
     }
     if (RegExp(r'prepare|meeting').hasMatch(lower)) {
-      return "Here's what I'd walk in knowing: the agenda, the last decision made on this topic, and one open question worth raising. $_pantherVoiceNote$memoryNote";
+      if (project == null && decision == null) {
+        return "I don't have context on this yet — tell me what the meeting's about and I'll start building it for next time.";
+      }
+      final lines = <String>[];
+      if (project != null) lines.add('Context: ${project.content}');
+      if (decision != null) lines.add('Last decision: ${decision.content}');
+      if (preference != null) lines.add('Keep it in your style: ${preference.content}');
+      return "Here's what I'd walk in knowing.\n\n${lines.map((l) => '• $l').join('\n')}";
+    }
+    if (RegExp(r'think.*through|help me think').hasMatch(lower)) {
+      final rule = instruction != null ? '\n\nOne thing to weigh: ${instruction.content}' : '';
+      return "Let's work through it. What's the real constraint here — time, budget, or buy-in?$rule";
     }
     if (isRememberRequest(userText)) {
-      return "Got it — I've saved that. I'll bring it back up when it's relevant. $_pantherVoiceNote";
+      return "Got it — saved. I'll bring it back up whenever it's relevant.";
     }
     if (userText.trim().isEmpty) {
-      return "I'm here. Ask me what matters today, or tell me something to remember. $_pantherVoiceNote";
+      return "I'm here. Ask what matters today, or tell me something to remember.";
     }
-    return "Understood. Here's my read: this is straightforward, and I'd move on it directly rather than overthink it. $_pantherVoiceNote$memoryNote";
+    final note = project != null ? "\n\nWorth weighing against: ${project.content}" : '';
+    return "Understood. My read: this is straightforward — I'd move on it directly rather than let it sit.$note";
   }
 }

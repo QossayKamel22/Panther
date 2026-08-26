@@ -44,7 +44,9 @@ class FirestoreMemoryRepository implements MemoryRepository {
 /// In-memory fallback used until a real Firebase project is connected (see
 /// FirebaseBootstrap) — keeps the Memory screen fully usable in local mode.
 class LocalMemoryRepository implements MemoryRepository {
-  final List<MemoryEntry> _entries = [];
+  LocalMemoryRepository({List<MemoryEntry> seed = const []}) : _entries = List.of(seed);
+
+  final List<MemoryEntry> _entries;
   final _controller = StreamController<List<MemoryEntry>>.broadcast();
 
   @override

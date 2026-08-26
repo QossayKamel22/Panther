@@ -39,6 +39,8 @@ class AuthController extends ChangeNotifier {
   Future<bool> signInWithSocial(SocialProvider provider) =>
       _guard(() => _repository.signInWithSocial(provider));
 
+  Future<bool> signInDemo() => _guard(() => _repository.signInDemo());
+
   Future<bool> sendPasswordReset(String email) =>
       _guard(() => _repository.sendPasswordReset(email));
 

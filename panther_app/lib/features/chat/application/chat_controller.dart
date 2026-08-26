@@ -9,8 +9,8 @@ class ChatController extends ChangeNotifier {
 
   final DemoAiService aiService;
 
-  /// So the demo reply can reference how much context PANTHER is "holding" —
-  /// same behavior as the web app's TurnContext.items.length.
+  /// So the demo reply can actually draw on what PANTHER remembers instead
+  /// of just knowing how many things it's holding.
   final MemoryController memory;
 
   final List<ChatMessage> _messages = [];
@@ -46,7 +46,7 @@ class ChatController extends ChangeNotifier {
     }
 
     var accumulated = '';
-    await for (final delta in aiService.streamReply(trimmed, memoryItemCount: memory.entries.length)) {
+    await for (final delta in aiService.streamReply(trimmed, memory: memory.entries)) {
       accumulated += delta;
       final index = _messages.indexWhere((m) => m.id == assistantMessage.id);
       if (index == -1) break;
