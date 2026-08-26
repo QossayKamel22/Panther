@@ -159,19 +159,11 @@ PANTHER understands the request, prepares the action, and asks for confirmation 
 
 ---
 
-<img width="1512" height="982" alt="Screenshot 2026-08-26 at 20 02 44" src="https://github.com/user-attachments/assets/b3ef320f-0ead-4233-98b0-f3b4ae3295a0" />
+<img width="1536" height="1024" alt="ChatGPT Image Aug 26, 2026 at 08_33_52 PM" src="https://github.com/user-attachments/assets/5509264b-3427-4f31-954c-f4755e35671e" />
+
 
 ---
 
-<img width="510" height="968" alt="Screenshot 2026-08-26 at 20 03 39" src="https://github.com/user-attachments/assets/f84dfee6-adcd-44c6-ad12-e83b901f5beb" />
-
----
-
-<img width="510" height="968" alt="Screenshot 2026-08-26 at 20 04 08" src="https://github.com/user-attachments/assets/8afdd222-eb99-48e2-9109-9d61fee00794" />
-
----
-
-<img width="510" height="968" alt="Screenshot 2026-08-26 at 20 03 50" src="https://github.com/user-attachments/assets/56e88e9e-6da9-45d4-81f3-f4fa81c59616" />
 
 
 
