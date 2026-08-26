@@ -158,7 +158,7 @@ PANTHER understands the request, prepares the action, and asks for confirmation 
 
 ---
 
-![Uploading Screenshot 2026-08-26 at 20.01.24.png…]()
+<img width="1512" height="982" alt="Screenshot 2026-08-26 at 20 01 24" src="https://github.com/user-attachments/assets/7dc8a4c4-286a-4785-8683-8ae76e62533b" />
 
 
 # 🏗️ Architecture
