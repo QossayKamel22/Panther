@@ -13,12 +13,14 @@ class AuthController extends ChangeNotifier {
     _sub = _repository.authStateChanges().listen((user) {
       _user = user;
       _status = user == null ? AuthStatus.unauthenticated : AuthStatus.authenticated;
+      if (!_ready.isCompleted) _ready.complete();
       notifyListeners();
     });
   }
 
   final AuthRepository _repository;
   late final StreamSubscription<AppUser?> _sub;
+  final Completer<void> _ready = Completer<void>();
 
   AuthStatus _status = AuthStatus.unknown;
   AppUser? _user;
@@ -29,6 +31,11 @@ class AuthController extends ChangeNotifier {
   AppUser? get user => _user;
   bool get busy => _busy;
   String? get error => _error;
+
+  /// Resolves once the first real auth state (signed in or not) has come
+  /// back — lets the splash screen wait for a real answer instead of
+  /// racing [status] while it's still [AuthStatus.unknown].
+  Future<void> get ready => _ready.future;
 
   Future<bool> signIn({required String email, required String password}) =>
       _guard(() => _repository.signIn(email: email, password: password));

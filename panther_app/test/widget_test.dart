@@ -8,5 +8,10 @@ void main() {
     await tester.pump();
 
     expect(find.byType(MaterialApp), findsOneWidget);
+
+    // SplashScreen holds itself on-screen for a minimum stretch via a real
+    // timer before navigating — flush it so no Timer is left pending when
+    // the test ends.
+    await tester.pump(const Duration(milliseconds: 700));
   });
 }
